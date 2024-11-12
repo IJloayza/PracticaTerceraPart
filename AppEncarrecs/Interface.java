@@ -27,19 +27,8 @@ public class Interface {
                     ArrayList<Encarrec> listaEnc = new ArrayList<Encarrec>();
                     pedirMuchosEncargos(listaEnc);
                     if(listaEnc.size() > 0){
-                        System.out.println("Deseas crear un fichero Serializado(s) o Aleatorio(a)");
-                        String tipeFile = Std.readLine();
-                        switch (tipeFile.toLowerCase()) {
-                            case "s","serializado":
-                                Fichero.ficSerialitzat(listaEnc);                   
-                                break;
-                            case "a","aleatorio":
-                                Fichero.ficAleatorio(listaEnc); 
-                                break;
-                            default:
-                                System.out.println("Por favor elige una opción válida");
-                                break;
-                        }
+                        System.out.println("Creando archivo XML...");
+                        Fichero.crearXML(listaEnc);
                     }
                     break;
                 case "s","show":

@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -11,6 +12,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*; 
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.FileNotFoundException;
@@ -54,162 +62,50 @@ public class Fichero {
         return medida;
     }
 
-    public static void llegirArxiu(String tipo, int pos){
-        File archivoALeer = getArxiu(tipo, pos);
-        if(tipo.equals("a")){
-            llegirAleatori(archivoALeer);
-        }else if(tipo.equals("s")){
-            llegirSerialitzat(archivoALeer);
-        }
-    }
-
-    public static void ficSerialitzat(ArrayList<Encarrec> listaEncarrecs){
-        File ruta = new File("./Serializados");
-        if(!ruta.exists()){
-            ruta.mkdir();
-        }
+    public static void crearXML(ArrayList<Encarrec> listaEncarrecs){
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
-            String localdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss"));
-            File escribirFile = new File(ruta + "/" + localdate + ".dat");
-            if(!escribirFile.exists()){
-                escribirFile.createNewFile();
-            }
-            ObjectOutputStream obj = new ObjectOutputStream(new FileOutputStream(escribirFile));
-            obj.writeObject(listaEncarrecs);
-            obj.close();
-        }catch(FileNotFoundException e){
-            System.out.println(e.getMessage()); 
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void llegirSerialitzat(File readFile){
-        try{
-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(readFile));
-            @SuppressWarnings("unchecked")
-            ArrayList<Encarrec> encarrecs = (ArrayList<Encarrec>)obj.readObject();
-            printEncarrecs(encarrecs);
-            obj.close();
-        }catch(FileNotFoundException f){
-            System.out.println(f.getMessage());
-        }catch(ClassNotFoundException c){
-            System.out.println(c.getMessage());
-        } catch(IOException e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void ficAleatorio(ArrayList<Encarrec> listaEncarrecs){
-        File ruta = new File("./Aleatorios");
-        if(!ruta.exists()){
-            ruta.mkdir();
-        }
-        try {
-            String localdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss"));
-            RandomAccessFile raf1 = new RandomAccessFile(ruta + "/" + localdate + ".dat", "rw");
-            for (Encarrec encarrec : listaEncarrecs) {
-                raf1.writeInt(encarrec.getId());
-                raf1.writeInt(encarrec.getArticles().size());
-                //System.out.println(encarrec.getId());
-                raf1.writeChars(String.format("%-40s", encarrec.getNombre()));
-                //System.out.println(encarrec.getNombre());
-                raf1.writeChars(String.format("%-20s", encarrec.getData()));
-                raf1.writeChars(String.format("%-12s", encarrec.getTelefono()));
-                for (Article artic : encarrec.getArticles()) {
-                    raf1.writeChars(String.format("%-20s", artic.getNombre()));
-                    raf1.writeFloat(artic.getCantidad());
-                    raf1.writeChars(String.format("%-10s", artic.getUnidad().getUnitat()));
-                    raf1.writeFloat(artic.getPreu());
-                }
-                raf1.writeFloat(encarrec.getPreuTotal());
-            }
-            raf1.close();
-        }catch(FileNotFoundException f){
-            System.out.println(f.getMessage());
-        } catch(IOException e){
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public static void llegirAleatori(File readFile){
-        int pos = 0;
-        ArrayList<Encarrec> encarrecsAleatori = new ArrayList<Encarrec>();
-        try {
-            RandomAccessFile llegirEnc =new RandomAccessFile(readFile, "r");
-            while (llegirEnc.getFilePointer() != llegirEnc.length()) {
-                llegirEnc.seek(pos);
-                int id = llegirEnc.readInt();
-                int medida = llegirEnc.readInt();
-                String nomCli = leerString(llegirEnc, 40);
-                String fecha = leerString(llegirEnc, 20);
-                String telefono = leerString(llegirEnc, 12);
-                List<Article> art = new ArrayList<Article>();
-                for(int i = 0; i < medida; i++){
-                    String nomArt = leerString(llegirEnc, 20);
-                    float cantArt = llegirEnc.readFloat();
-                    String unitArt = leerString(llegirEnc, 10);
-                    float preuArt = llegirEnc.readFloat();
-                    Article artic = new Article(nomArt, cantArt, unitArt, preuArt);
-                    art.add(artic);
-                }
-                float preuTot = llegirEnc.readFloat();
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                LocalDate fechaObj = LocalDate.parse(fecha, format);
-                Encarrec encarrecAleatori = new Encarrec(id, nomCli, telefono, fechaObj, art, preuTot);
-                encarrecsAleatori.add(encarrecAleatori);
-                pos = pos + (152 + (medida * 68) + 4);     
-            }
-            printEncarrecs(encarrecsAleatori);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } catch (NumberFormatException e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void editarAleatori(File readFile, int idSearch, String datoCambio, String canvi){
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            DOMImplementation implementation = builder.getDOMImplementation();
+            Document document = implementation.createDocument (null,"encarrecs", null);
+            document.setXmlVersion("1.0");
+       
+            for(Encarrec e: listaEncarrecs){
+                int id = e.getId();
+                String nombre = e.getNombre();
+                String telefono = e.getTelefono();
+                String fecha = e.getData();
+                double total = e.getPreuTotal();
+                List<Article> lista = e.getArticles();    
         
-        try {
-            RandomAccessFile llegirEnc =new RandomAccessFile(readFile, "rw");
-            while (llegirEnc.getFilePointer() != llegirEnc.length()) {
-                
-                int id = llegirEnc.readInt();
-                if(id != idSearch){
-                    int medida = llegirEnc.readInt();
-                    //La medida de mi encargo salta en caso de que el id no sea igual hasta el siguiente encargo
-                    llegirEnc.skipBytes(144 + (medida * 68) + 4);     
-                    continue;
-                }else{
-                    if(datoCambio.equals("t")||datoCambio.equals("telefono") || datoCambio.equals("teléfono")){
-                        llegirEnc.readInt();
-                        leerString(llegirEnc, 40);
-                        leerString(llegirEnc, 20);
-                        llegirEnc.writeChars(String.format("%-12s", canvi));
-                        break;
-                    }else if(datoCambio.equals("f")||datoCambio.equals("fecha")){
-                        llegirEnc.readInt();
-                        leerString(llegirEnc, 40);
-                        llegirEnc.writeChars(String.format("%-20s", canvi));
-                        break;
-                    }
-                }
-            }
-            System.out.println("Los datos actualizados son:");
-            llegirAleatori(readFile);
-        } catch(EOFException e){
-            System.out.println("No se ha encontrado ningún encargo con el id introducido");
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+                Element arrel = document.createElement ("empleat");
+                arrel.setAttribute("id",Integer.toString(id));
+                document.getDocumentElement().appendChild(arrel);
 
-    public static String leerString(RandomAccessFile read, int lon) throws IOException{
-        StringBuilder str = new StringBuilder(lon);
-        for(int i = 0; i < lon; i++){
-            str.append(read.readChar());
+                CrearElement ("nombre",nombre.trim(), arrel, document);
+                CrearElement ("telef", telefono.trim(), arrel, document);
+                CrearElement ("age", Integer.toString(age),arrel, document);
+                CrearElement ("height", Double.toString(height), arrel, document);
+                CrearElement ("job", job.trim(),arrel, document);
+            }
+        
+            Source source = new DOMSource (document);
+            Result result = new StreamResult (new FileWriter("empleats.xml"));
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes"); 
+            transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "4");
+            transformer.transform (source, result);
+        
+        } catch (Exception e ) { 
+            System.err.println ("Error: " + e);}
         }
-        return str.toString().trim();
+        
+        public static void CrearElement (String dadaEmpleat, String valor, Element arrel, Document document) {
+            Element elem = document.createElement (dadaEmpleat);
+            Text text = document.createTextNode(valor);
+            arrel.appendChild (elem);
+            elem.appendChild (text);
+        }
     }
 
     public static void printEncarrecs(ArrayList<Encarrec> e) throws IOException{
