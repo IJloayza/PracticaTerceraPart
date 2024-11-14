@@ -23,7 +23,7 @@ public class Interface {
                     showHelp();
                     break;
                 case "a","agregar":
-                    ArrayList<Encarrec> listaEnc = new ArrayList<Encarrec>();
+                    List<Encarrec> listaEnc = new ArrayList<Encarrec>();
                     pedirMuchosEncargos(listaEnc);
                     if(listaEnc.size() > 0){
                         System.out.println("Creando archivo XML...");
@@ -225,7 +225,7 @@ public class Interface {
         return encargo;
     }
 
-    public static void pedirMuchosEncargos(ArrayList<Encarrec> listaEncarrecs){
+    public static void pedirMuchosEncargos(List<Encarrec> listaEncarrecs){
         boolean respInc = true;
         while(respInc){
         

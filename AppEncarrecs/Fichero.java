@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.w3c.dom.*;
@@ -51,10 +52,12 @@ public class Fichero {
         return medida;
     }
 
-    public static void crearXML(ArrayList<Encarrec> listaEncarrecs){
+    public static void crearXML(List<Encarrec> listaEncarrecs){
+        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
+            listaEncarrecs.sort(Comparator.comparing(Encarrec::getNombre));
             DOMImplementation implementation = builder.getDOMImplementation();
             Document document = implementation.createDocument (null,"encarrecs", null);
             document.setXmlVersion("1.0");

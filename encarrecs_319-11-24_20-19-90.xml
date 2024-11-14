@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<encarrecs>
+    <encarrec id="3">
+        <nombre>Aitor</nombre>
+        <telefono>234234234</telefono>
+        <fecha>12-12-2025</fecha>
+        <total>12.0</total>
+        <article>
+            <nomArt>coca cola</nomArt>
+            <cantidad>1.0</cantidad>
+            <unidad>l</unidad>
+            <preu>12.0</preu>
+        </article>
+    </encarrec>
+    <encarrec id="1">
+        <nombre>alan</nombre>
+        <telefono>123123123</telefono>
+        <fecha>12-12-2025</fecha>
+        <total>20.0</total>
+        <article>
+            <nomArt>pernil</nomArt>
+            <cantidad>2.0</cantidad>
+            <unidad>ud</unidad>
+            <preu>20.0</preu>
+        </article>
+    </encarrec>
+    <encarrec id="2">
+        <nombre>bernardo</nombre>
+        <telefono>234234234</telefono>
+        <fecha>23-11-2024</fecha>
+        <total>12.0</total>
+        <article>
+            <nomArt>patata</nomArt>
+            <cantidad>2.0</cantidad>
+            <unidad>l</unidad>
+            <preu>12.0</preu>
+        </article>
+    </encarrec>
+</encarrecs>
