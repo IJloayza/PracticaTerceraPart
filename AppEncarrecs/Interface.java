@@ -72,7 +72,7 @@ public class Interface {
                         }
                     }
                     break;
-                case "e","edit":
+                /* case "e","edit":
                     boolean respIs = false;
                     //Muestra un encargo en los archivos aleatorios o un fichero completo de serializado en 
                     try {
@@ -132,7 +132,7 @@ public class Interface {
                     }catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
                     }
-                    break;
+                    break; */
                 case "f", "finalizar":
                     //Guardar el encargo en un archivo.csv y binario 
                     seguir = false;
@@ -163,8 +163,7 @@ public class Interface {
     public static void showHelp(){
         System.out.println("h o Help: Para mostrar las opciones disponibles");
         System.out.println("a o Agregar: Para agregar algo al carrito");
-        System.out.println("s o Show: Para mostrar un encargo");
-        System.out.println("e o Editar: Para editar un encargo aleatorio");
+        System.out.println("s o Show: Para mostrar un archivo o un encargo");
         System.out.println("f o Finalizar: Para cancelar el encargo");
     }
     public static boolean cancelarPedido(String res){

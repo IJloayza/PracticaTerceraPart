@@ -1,13 +1,8 @@
 package AppEncarrecs;
 
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.RandomAccessFile;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,10 +13,6 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*; 
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.FileNotFoundException;
 
 public class Fichero {
     public static File getArxiu(String tipo, int pos){
@@ -78,19 +69,33 @@ public class Fichero {
                 double total = e.getPreuTotal();
                 List<Article> lista = e.getArticles();    
         
-                Element arrel = document.createElement ("empleat");
+                Element arrel = document.createElement ("encarrec");
                 arrel.setAttribute("id",Integer.toString(id));
                 document.getDocumentElement().appendChild(arrel);
 
                 CrearElement ("nombre",nombre.trim(), arrel, document);
-                CrearElement ("telef", telefono.trim(), arrel, document);
-                CrearElement ("age", Integer.toString(age),arrel, document);
-                CrearElement ("height", Double.toString(height), arrel, document);
-                CrearElement ("job", job.trim(),arrel, document);
+                CrearElement ("telefono", telefono.trim(), arrel, document);
+                CrearElement ("fecha", fecha.trim(),arrel, document);
+                CrearElement ("total", Double.toString(total), arrel, document);
+                for(Article a: lista){
+                    String nomArt = a.getNombre();
+                    float cantidad = a.getCantidad();
+                    Unitat unidad = a.getUnidad();
+                    float preu = a.getPreu();
+
+                    Element tagArticle = document.createElement ("article");
+                    document.getDocumentElement().appendChild(arrel);
+
+                    CrearElement ("nomArt",nomArt.trim(), tagArticle, document);
+                    CrearElement ("cantidad", Float.toString(cantidad), tagArticle, document);
+                    CrearElement ("unidad", unidad.getUnitat(), tagArticle, document);
+                    CrearElement ("preu", Float.toString(preu), tagArticle, document);
+                }
             }
         
             Source source = new DOMSource (document);
-            Result result = new StreamResult (new FileWriter("empleats.xml"));
+            String timeXML = LocalDateTime.now().format(DateTimeFormatter.ofPattern("DD-MM-YY_HH-mm-SS"));
+            Result result = new StreamResult (new FileWriter("encarrecs_" + timeXML + ".xml"));
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes"); 
             transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "4");
@@ -98,16 +103,15 @@ public class Fichero {
         
         } catch (Exception e ) { 
             System.err.println ("Error: " + e);}
-        }
-        
-        public static void CrearElement (String dadaEmpleat, String valor, Element arrel, Document document) {
-            Element elem = document.createElement (dadaEmpleat);
-            Text text = document.createTextNode(valor);
-            arrel.appendChild (elem);
-            elem.appendChild (text);
-        }
     }
-
+        
+    
+    public static void CrearElement (String dadaEmpleat, String valor, Element arrel, Document document) {
+        Element elem = document.createElement (dadaEmpleat);
+        Text text = document.createTextNode(valor);
+        arrel.appendChild (elem);
+        elem.appendChild (text);
+    }
     public static void printEncarrecs(ArrayList<Encarrec> e) throws IOException{
         for (Encarrec c : e) {
             System.out.println("Id: " + c.getId());
