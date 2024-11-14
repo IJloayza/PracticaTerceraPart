@@ -2,7 +2,6 @@ package AppEncarrecs;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.io.File;
 import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -36,35 +35,15 @@ public class Interface {
                     boolean respCor = false;
                     while(!respCor){
                         try{
-                            System.out.println("¿Qué tipo de archivo deseas leer?(Serializado[s], Aleatorio[a], Cancelar[c])");
-                            String tipoArchivo = Std.readLine();
-                            if(cancelarPedido(tipoArchivo))break;
-                            switch (tipoArchivo.toLowerCase()) {
-                                case "a":
-                                    int quants = Fichero.mostrarArchivos("a");
-                                    if(quants <= 0){
-                                        throw new IllegalArgumentException("Has de crear algún elemento para editarlo, primero agregalo");
-                                    }
-                                    break;
-                                case "s":
-                                    int mida = Fichero.mostrarArchivos("s");
-                                    if(mida <= 0){
-                                        throw new IllegalArgumentException("Has de crear algún elemento para editarlo, primero agregalo");
-                                    }
-                                    break;
-                                default:
-                                    throw new IllegalArgumentException("Elige una opción válida");
+                            System.out.println("Por favor elige el archivo que deseas leer o c (Cancelar) para salir");
+                            Fichero.mostrarArchivos();
+                            String posXML = Std.readLine();
+                            if(!Utilitats.esNumero(posXML)){
+                                throw new IllegalArgumentException("Has de introducir un número");
                             }
-                            System.out.println("Elige el número del archivo que deseas leer");
-                            String archivNum = Std.readLine();
-                            if(cancelarPedido(archivNum))break;
-                            if(archivNum.isBlank()){
-                                throw new IllegalArgumentException("Se debe especificar el número de archivo");
-                            }else if(!Utilitats.esNumero(archivNum)){
-                                throw new NumberFormatException("Se debe ingresar un número válido");
-                            }
-                            int numArchivo = Integer.parseInt(archivNum);
-                            Fichero.llegirArxiu(tipoArchivo, numArchivo);
+                            if(cancelarPedido(posXML))break;
+                            int pos = Integer.parseInt(posXML);
+                            Fichero.llegirDOMXML(pos);
                         }catch(NumberFormatException e){
                             System.out.println(e.getMessage());
                         }catch(IllegalArgumentException e){
@@ -72,67 +51,6 @@ public class Interface {
                         }
                     }
                     break;
-                /* case "e","edit":
-                    boolean respIs = false;
-                    //Muestra un encargo en los archivos aleatorios o un fichero completo de serializado en 
-                    try {
-                            while(!respIs){
-                            System.out.println("¿Qué archivo aleatorio deseas editar? Indica el número o c para cancelar");
-                            int medida = Fichero.mostrarArchivos("a");
-                            if(medida <= 0){
-                                throw new IllegalArgumentException("Has de crear algún elemento para editarlo, primero agregalo");
-                            }
-                            String archivNum = Std.readLine();
-                            if(cancelarPedido(archivNum))break;
-                            if(archivNum.isBlank()){
-                                throw new IllegalArgumentException("Se debe especificar el número de archivo");
-                            }else if(!Utilitats.esNumero(archivNum)){
-                                throw new NumberFormatException("Se debe ingresar un número válido");
-                            }
-                            int numArchivo = Integer.parseInt(archivNum);
-                            Fichero.llegirArxiu("a", numArchivo);
-                            System.out.println("Este es el contenido del archivo a editar");
-                            System.out.println("Indica el número de id que deseas editar: ");
-                            String encarrecNum = Std.readLine();
-                            if(cancelarPedido(encarrecNum))break;
-                            if(encarrecNum.isBlank()){
-                                throw new IllegalArgumentException("Se debe especificar el número de encargo");
-                            }else if(!Utilitats.esNumero(encarrecNum)){
-                                throw new NumberFormatException("Se debe ingresar un número válido");
-                            }
-                            int numEncarrec = Integer.parseInt(encarrecNum);
-                            System.out.println("¿Deseas cambiar el teléfono(t) o la fecha(f) de envío?");
-                            String dataCambio = Std.readLine();
-                            if(cancelarPedido(dataCambio))break;
-                            if(dataCambio.isBlank()){
-                                throw new IllegalArgumentException("Se debe especificar el dato a cambiar");
-                            }
-                            switch (dataCambio.toLowerCase()) {
-                                case "fecha","f":
-                                    System.out.println("¿Qué fecha deseas colocar?");
-                                    LocalDate data = pideFecha();
-                                    String fecha = data.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-                                    File fic = Fichero.getArxiu("a", numArchivo);
-                                    Fichero.editarAleatori(fic, numEncarrec, dataCambio, fecha);
-                                    break;
-                                case "telefono","teléfono","t":
-                                    System.out.println("¿Qué teléfono deseas colocar?");
-                                    String tel = pideTelefono();
-                                    fic = Fichero.getArxiu("a", numArchivo);
-                                    Fichero.editarAleatori(fic, numEncarrec, dataCambio, tel);
-                                    break;
-                                default:
-                                    System.out.println("Por favor selecciona una opción entre los datos editables");
-                                    break;
-                            }
-
-                        }
-                    }catch(NumberFormatException e){
-                        System.out.println(e.getMessage());
-                    }catch (IllegalArgumentException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break; */
                 case "f", "finalizar":
                     //Guardar el encargo en un archivo.csv y binario 
                     seguir = false;

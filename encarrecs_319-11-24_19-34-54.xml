@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<encarrecs>
+    <encarrec id="1">
+        <nombre>maria</nombre>
+        <telefono>123123123</telefono>
+        <fecha>12-12-2025</fecha>
+        <total>34.0</total>
+    </encarrec>
+    <article>
+        <nomArt>patata</nomArt>
+        <cantidad>3.0</cantidad>
+        <unidad>ud</unidad>
+        <preu>34.0</preu>
+    </article>
+</encarrecs>

@@ -15,34 +15,32 @@ import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
 public class Fichero {
-    public static File getArxiu(String tipo, int pos){
-        String carpeta = "";
+    public static File getArxiu(int pos){
         File nomArc = new File("");
-        if(tipo.equals("a"))carpeta = "Aleatorios";
-        if(tipo.equals("s"))carpeta = "Serializados";
-        File getArc = new File("./" + carpeta);
+        
+        File getArc = new File("./");
         if (getArc.exists()) {
             File[] getFiles = getArc.listFiles();
+            for (File file : getFiles) {
+                System.out.println(file.getName());
+            }
             //Resto 1 al pos ya que si el usuario elige el 1 yo accedo al 0 del array
-            nomArc = getFiles[pos - 1];
+            nomArc = getFiles[pos +1];
         }else{
             System.out.println("Esta carpeta no existe por favor primero crealo desde agregar");
         }
         return nomArc;
     }
 
-    public static int mostrarArchivos(String denom){
-        String carpeta = "";
+    public static int mostrarArchivos(){
         int count = 1;
         int medida = 0;
-        if(denom.equals("a"))carpeta = "Aleatorios";
-        if(denom.equals("s"))carpeta = "Serializados";
-        File arc = new File("./" + carpeta);
+        File arc = new File("./");
         if(arc.exists()){
             File[] arcSerial = arc.listFiles();
             medida = arcSerial.length;
             for (File arxiu : arcSerial) {
-                if(arxiu.isFile()){
+                if(arxiu.isFile() && arxiu.getName().endsWith(".xml")){
                     System.out.println(String.format("%s (%d)",arxiu.getName(), count));
                     count++;
                 }
@@ -77,6 +75,7 @@ public class Fichero {
                 CrearElement ("telefono", telefono.trim(), arrel, document);
                 CrearElement ("fecha", fecha.trim(),arrel, document);
                 CrearElement ("total", Double.toString(total), arrel, document);
+
                 for(Article a: lista){
                     String nomArt = a.getNombre();
                     float cantidad = a.getCantidad();
@@ -84,7 +83,7 @@ public class Fichero {
                     float preu = a.getPreu();
 
                     Element tagArticle = document.createElement ("article");
-                    document.getDocumentElement().appendChild(arrel);
+                    arrel.appendChild(tagArticle);
 
                     CrearElement ("nomArt",nomArt.trim(), tagArticle, document);
                     CrearElement ("cantidad", Float.toString(cantidad), tagArticle, document);
@@ -92,8 +91,9 @@ public class Fichero {
                     CrearElement ("preu", Float.toString(preu), tagArticle, document);
                 }
             }
-        
+            // Crear orden por llave desde la API
             Source source = new DOMSource (document);
+
             String timeXML = LocalDateTime.now().format(DateTimeFormatter.ofPattern("DD-MM-YY_HH-mm-SS"));
             Result result = new StreamResult (new FileWriter("encarrecs_" + timeXML + ".xml"));
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -104,7 +104,66 @@ public class Fichero {
         } catch (Exception e ) { 
             System.err.println ("Error: " + e);}
     }
+    
+    public static void llegirDOMXML(int pos){
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            try {
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(getArxiu(pos));
+                Element arrel = document.getDocumentElement();
+                System.out.printf ("element arrel : %s %n", arrel.getNodeName());
+
+                NodeList encarrecs = document.getElementsByTagName("encarrec");
         
+                for (int i = 0; i < encarrecs.getLength(); i++) {
+                    Node encarrec = encarrecs.item(i);
+                    if (encarrec.getNodeType() == Node.ELEMENT_NODE){
+                        
+                        Element element = (Element) encarrec;
+                        
+                        System.out.printf("Id = %s %n",element.getAttribute("id"));
+                        
+                        System.out.printf(" * nombre cliente = %s %n", 
+                        element.getElementsByTagName("nombre").item(0).getTextContent());
+        
+                        System.out.printf(" * fecha = %s %n", 
+                        element.getElementsByTagName("fecha").item(0).getTextContent());
+        
+                        System.out.printf(" * telefono = %s %n",
+                        element.getElementsByTagName("telefono").item(0).getTextContent());
+                        
+                        System.out.printf(" * total = %s %n",
+                        element.getElementsByTagName("total").item(0).getTextContent());
+                        
+                        System.out.println("Artículos:");
+
+                        NodeList articles = document.getElementsByTagName("article");
+
+                        for(int j = 0; j < articles.getLength(); j++){
+                            Node article = articles.item(j);
+
+                            if(article.getNodeType() == Node.ELEMENT_NODE){
+                                Element artElement = (Element) article;
+                                System.out.printf(" * nombre de artículo = %s %n",
+                                artElement.getElementsByTagName("nomArt").item(0).getTextContent());
+                                
+                                System.out.printf(" * cantidad = %s %n",
+                                artElement.getElementsByTagName("cantidad").item(0).getTextContent());
+                                
+                                System.out.printf(" * unidad = %s %n",
+                                artElement.getElementsByTagName("unidad").item(0).getTextContent());
+                                
+                                System.out.printf(" * preu = %s %n",
+                                artElement.getElementsByTagName("preu").item(0).getTextContent());
+                            }
+                        }
+                    }
+                }
+        }   catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     
     public static void CrearElement (String dadaEmpleat, String valor, Element arrel, Document document) {
         Element elem = document.createElement (dadaEmpleat);
@@ -126,138 +185,4 @@ public class Fichero {
             System.out.println(String.format("%60s", ("Preu Total: " + c.getPreuTotal())));
         }
     }
-   
-    /* public void ficBinari(Encarrec c, String fechaFic) throws IOException{
-        //Crear la carpeta binarios dentro de la ruta brindada por el usuario si no existe
-        File carpBin = new File(ruta + "\\Binarios");
-        System.out.println(carpBin);
-        //Si no existe es creado
-        if(!carpBin.exists()){
-            carpBin.mkdir();
-        }
-        //Una vez creado creo el fichero binario dentro de este directorio
-        File ficBin = new File(carpBin +"\\"+ c.getNombre()+fechaFic+".bin");
-        System.out.println(ficBin);
-        if (!ficBin.exists()) {
-            ficBin.createNewFile();
-        }
-        //El fichero creado se vuelve un FileOutputStream y lo introduzco en un DataOutputStream
-        try {FileOutputStream f = new FileOutputStream(ficBin);
-            DataOutputStream writer = new DataOutputStream(f); 
-            //Construir un String con el contenido de el cliente en formato binario
-            //Escribir todo el string dentro del archivo
-            writer.writeUTF(c.getNombre());
-            writer.writeUTF(c.getTelefono());
-            writer.writeUTF(c.getData());
-            for(Article a:c.getArticles()){
-                writer.writeUTF("\n");
-                writer.writeUTF(a.getNombre());
-                writer.writeUTF(a.getUnidad().toString());
-                writer.writeFloat(a.getCantidad());
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-    public void ficCSV(Encarrec c, String fechaFic) throws IOException{
-        File carpBin = new File(ruta + "/CSV");
-        //Si no existe es creado
-        if(!carpBin.exists()){
-            carpBin.mkdir();
-        }
-        //Una vez creado creo el fichero binario dentro de este directorio
-        File ficCSV = new File(carpBin +"/"+ c.getNombre()+fechaFic+".csv");
-        System.out.println(ficCSV);
-        if (!ficCSV.exists()) {
-            ficCSV.createNewFile();
-        }
-        //En el fichero creado se escribe la informacion del cliente
-        try {BufferedWriter writer = new BufferedWriter(new FileWriter(ficCSV));
-            writer.write(c.getNombre() +";");
-            writer.write(c.getTelefono()+";");
-            writer.write(c.getData()+";");
-            for(Article a: c.getArticles()){
-                writer.write(a.getNombre()+","+a.getCantidad()+","+a.getUnidad()+";");
-            }
-            writer.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-
-    public Encarrec csvToClient() throws IOException{
-        String linea;
-        DateTimeFormatter formatCSV = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Encarrec cli = null;
-        BufferedReader doc = new BufferedReader(new FileReader(ruta));   
-        while((linea = doc.readLine()) != null){
-            String[] datos = linea.split(";");
-            String nombre = datos[0];
-            String telefono = datos[1];
-            LocalDate data = LocalDate.parse(datos[2], formatCSV);
-            String preu = datos[3];
-            float precio = Float.parseFloat(preu);
-            ArrayList<Article> lista = new ArrayList<>();
-            for(int i = 3; i < datos.length; i++){
-                String[] datosArt = datos[i].split(",");
-                Article artCSV =new Article(datosArt[0], (Float.parseFloat(datosArt[1])), datosArt[2].toLowerCase(), precio);
-                lista.add(artCSV);
-            }
-            cli = new Encarrec(nombre, telefono, data, lista);
-        }
-        doc.close();
-        return cli;
-    }
-    public void clientToShow(String format) throws IOException{
-        Encarrec c = null;
-        if(format.equals("csv")){
-            c = csvToClient();
-        }else if(format.equals("bin")){
-            c = binToClient();
-        }
-            StringBuilder s = new StringBuilder(); 
-            s.append("Nom del client: " + c.getNombre() + "\n");
-            s.append("Telefon del client: " + c.getTelefono() + "\n");
-            s.append("Data de l'encarrrec: " + c.getData() + "\n");
-            s.append(String.format("%-15s%-15s%-15s\n", "Quantitat", "Unitats", "Article"));
-            s.append("=============================================");
-            for(Article a: c.getArticles()){
-                s.append(String.format("%n%-15s%-15s%-15s",a.getCantidad(), a.getUnidad(),a.getNombre()));
-            }
-            System.out.println(s.toString());
-    }
-
-    public Encarrec binToClient() throws IOException{
-        DateTimeFormatter formatBIN = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Encarrec cli = null;
-         try (DataInputStream ficBin = new DataInputStream(new FileInputStream(ruta))) {
-            String nombre = ficBin.readUTF();
-            String telefono = ficBin.readUTF();
-            String fecha = ficBin.readUTF();
-            LocalDate data = LocalDate.parse(fecha, formatBIN);
-            System.out.println(nombre);
-            System.out.println(telefono);
-            System.out.println(fecha);
-            ArrayList<Article> lista = new ArrayList<>();
-            while (ficBin.available() > 0) {
-                ficBin.readUTF(); // \n
-                String nombrePr = ficBin.readUTF();
-                String unidadPr = ficBin.readUTF();
-                float cantidadPr = ficBin.readFloat();
-                float precioPr = ficBin.readFloat();
-                System.out.println(nombrePr + unidadPr + cantidadPr);
-                Article articulo = new Article(nombrePr, cantidadPr, unidadPr,precioPr);
-                lista.add(articulo);
-            }
-        cli = new Encarrec(nombre, telefono, data, lista);
-        } catch (IOException e) {
-            throw e;
-        }
-        return cli;
-    } */
 }
