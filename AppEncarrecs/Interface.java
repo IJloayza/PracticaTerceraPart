@@ -38,11 +38,30 @@ public class Interface {
                             System.out.println("Por favor elige el archivo que deseas leer o c (Cancelar) para salir");
                             Fichero.mostrarArchivos();
                             String posXML = Std.readLine();
+                            if(cancelarPedido(posXML))break;
                             if(!Utilitats.esNumero(posXML)){
                                 throw new IllegalArgumentException("Has de introducir un número");
                             }
-                            if(cancelarPedido(posXML))break;
                             int pos = Integer.parseInt(posXML);
+                            System.out.println("¿Deseas leer todo el documento o buscar por un encargo? t(TODO) b(Buscar) c(Cancelar)");
+                            String tipoLectura = Std.readLine();
+                            if(cancelarPedido(posXML))break;
+                            switch (tipoLectura.toLowerCase()) {
+                                case "t", "todo":
+                                    Fichero.llegirDOMXML(pos);
+                                    break;
+                                case "b", "buscar":
+                                    System.out.println("¿Cuál es el nombre que deseas buscar?");
+                                    String nombreBuscarXml = Std.readLine();
+                                    if(!Utilitats.valorAdecuadoNom(nombreBuscarXml)){
+                                        throw new IllegalArgumentException("Se ha de introducir un nombre");
+                                    } 
+                                    Fichero.llegirSAX(pos, nombreBuscarXml);
+                                    break;
+                            
+                                default:
+                                    break;
+                            }
                             Fichero.llegirDOMXML(pos);
                         }catch(NumberFormatException e){
                             System.out.println(e.getMessage());

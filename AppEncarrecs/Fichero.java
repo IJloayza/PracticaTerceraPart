@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.*; 
 import javax.xml.transform.dom.*;
@@ -22,9 +24,6 @@ public class Fichero {
         File getArc = new File("./");
         if (getArc.exists()) {
             File[] getFiles = getArc.listFiles();
-            for (File file : getFiles) {
-                System.out.println(file.getName());
-            }
             //Resto 1 al pos ya que si el usuario elige el 1 yo accedo al 0 del array
             nomArc = getFiles[pos +1];
         }else{
@@ -97,7 +96,7 @@ public class Fichero {
             // Crear orden por llave desde la API
             Source source = new DOMSource (document);
 
-            String timeXML = LocalDateTime.now().format(DateTimeFormatter.ofPattern("DD-MM-YY_HH-mm-SS"));
+            String timeXML = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yy_HH-mm-ss"));
             Result result = new StreamResult (new FileWriter("encarrecs_" + timeXML + ".xml"));
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes"); 
@@ -174,6 +173,38 @@ public class Fichero {
         arrel.appendChild (elem);
         elem.appendChild (text);
     }
+
+    public static void llegirSAX(int pos, String nomBuscado){
+         try {
+            // Crear el SAXParser
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            EncarrecHandler handler = new EncarrecHandler();
+            // Se modifica el nombre a buscarse que es enviado por el usuario desde interface
+            handler.setTargetName(nomBuscado);
+            // Procesar el archivo XML
+            try {
+                saxParser.parse(getArxiu(pos), handler);
+            } catch (SAXException e) {
+                // Ignorar excepción si es para detener el análisis
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+
+            // Obtener el resultado
+            ArrayList<Encarrec> encargosEncontrado = handler.obtenerEncarrecs();
+            if (encargosEncontrado != null) {
+                printEncarrecs(encargosEncontrado);
+            } else {
+                System.out.println("Encargo no encontrado.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void printEncarrecs(ArrayList<Encarrec> e) throws IOException{
         for (Encarrec c : e) {
             System.out.println("Id: " + c.getId());
