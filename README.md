@@ -28,13 +28,13 @@ En esta nueva actualización de nuestro anterior código generaremos los archivo
 
 Se han añadido los siguientes métodos en la clase Fichero:
 
-###crearXML(List<Encarrec> listaEncarrecs):
+### crearXML(List<Encarrec> listaEncarrecs):
 
 Este método usa el DocumentBuilderFactory para crear el documento de los encargos ordenados alfabéticamente en formato XML. Recorre la lista de encargos y va montando el XML, la raíz será el encargo que tendrá como atributo el id y contendrá como hijos los valores del encargo, nombre, teléfono, fecha y total. 
 
 Dentro de cada encargo añadiremos el nodo artículo y este contendrá su información básica: el nombre, la cantidad, el tipo de unidad y su precio.
 
-###LlegirDOMXML(int pos):
+### LlegirDOMXML(int pos):
 
 Este método permite leer un archivo XML utilizando el DocumentBuilderFactory con DOM. Se accede al archivo XML seleccionado por el usuario. Una vez se obtiene el documento XML, se accede al nodo raíz encarrecs. Luego, recorre cada nodo encarrec para leer la información del encargo. 
 
