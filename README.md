@@ -34,13 +34,17 @@ Este método usa el DocumentBuilderFactory para crear el documento de los encarg
 
 Dentro de cada encargo añadiremos el nodo artículo y este contendrá su información básica: el nombre, la cantidad, el tipo de unidad y su precio.
 
-### LlegirDOMXML(int pos):
+### llegirDOMXML(int pos):
 
 Este método permite leer un archivo XML utilizando el DocumentBuilderFactory con DOM. Se accede al archivo XML seleccionado por el usuario. Una vez se obtiene el documento XML, se accede al nodo raíz encarrecs. Luego, recorre cada nodo encarrec para leer la información del encargo. 
 
 Dentro de cada encargo, también recorre los nodos article para obtener la información de cada artículo. 
 
 Finalmente, muestra toda esta información de manera estructurada en la consola.
+
+### llegirSAX(int pos, String nomBuscado)
+
+Este método emplea un parser SAX para leer un archivo XML seleccionado por el usuario. Establece el filtro para el nombre del cliente y luego procesa el archivo utilizando un SAXParser junto con la clase EncarrecHandler. Si se encuentran encargos que coinciden con el nombre dado, estos se muestran i si no se muestra un mensaje de error.
 
 ### printEncarrecs(ArrayList<Encarrecs>):
 Este método esta destinado a formatear correctamente los Encarrecs añadidos y realizar un print en la pantalla legible por el usuario.
@@ -54,6 +58,10 @@ En la clase Article al igual que en la anterior práctica se genera un construct
 ### Encarrec
 
 Esta clase destinada a generar encarrecs tiene sus respectivos getters y setters junto con dos constructores, uno que es utilizado por el programa al momento de crear el fichero con los encargosya que designa el id y preu total sin necesidad de interacción con el usuario, en cambio el otro es utilizado para la lectura de los ficheros, ya que al momento de generar los encargos al momento de leer se crean encragos nuevos es necesario designar un id y preu total sino será generado automáticamente siendo diferente al que aparece en los archivos, entonces he decidido que es mejor generarlo con un setId. 
+
+### EncarrecHandler
+
+Esta clase gestiona la lectura de archivos XML utilizando SAX, permitiendo filtrar los encargos por el nombre del cliente. Durante el proceso, crea objetos Encarrec y Article a partir de los datos del XML. Los encargos que coinciden con el nombre especificado se almacenan en una lista, la cual es accesible a través del método obtenerEncarrecs().
 
 ### Fichero
 
