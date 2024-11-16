@@ -15,7 +15,7 @@ public class EncarrecHandler extends DefaultHandler {
     private String targetName = "";
 
     private Encarrec currentEncarrec;
-    private ArrayList<Encarrec> encarrecs;
+    private ArrayList<Encarrec> encarrecs = new ArrayList<Encarrec>();
     private List<Article> articles;
     private Article actualArticle;
 
@@ -26,7 +26,7 @@ public class EncarrecHandler extends DefaultHandler {
     private float total;
 
     public ArrayList<Encarrec> obtenerEncarrecs() {
-        return isTarget ? encarrecs : null;
+        return encarrecs;
     }
 
     public void setTargetName(String nom){
@@ -41,10 +41,9 @@ public class EncarrecHandler extends DefaultHandler {
         currentElement = qName;
         if (qName.equalsIgnoreCase("encarrec")) {
             id = Integer.parseInt(attributes.getValue("id"));
-            encarrecs = new ArrayList<Encarrec>();
             articles = new ArrayList<Article>();
         } else if (qName.equalsIgnoreCase("article")) {
-            actualArticle = new Article("", 0, "", 0);
+            actualArticle = new Article("s", 1, "ud", 1);
         }
     }
 
@@ -57,7 +56,7 @@ public class EncarrecHandler extends DefaultHandler {
             case "nombre":
                 nombre = content;
                 if (nombre.equalsIgnoreCase(targetName)) {
-                    isTarget = true; // Encontramos el encargo objetivo
+                    isTarget = true;
                 }
                 break;
             case "telefono":
@@ -95,6 +94,7 @@ public class EncarrecHandler extends DefaultHandler {
                 currentEncarrec = new Encarrec(id, nombre, telefono, data, articles, total);
                 encarrecs.add(currentEncarrec);
             }
+            isTarget = false;
         }
         currentElement = "";
     }

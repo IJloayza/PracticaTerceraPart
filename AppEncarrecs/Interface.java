@@ -45,7 +45,7 @@ public class Interface {
                             int pos = Integer.parseInt(posXML);
                             System.out.println("¿Deseas leer todo el documento o buscar por un encargo? t(TODO) b(Buscar) c(Cancelar)");
                             String tipoLectura = Std.readLine();
-                            if(cancelarPedido(posXML))break;
+                            if(cancelarPedido(tipoLectura))break;
                             switch (tipoLectura.toLowerCase()) {
                                 case "t", "todo":
                                     Fichero.llegirDOMXML(pos);
@@ -62,7 +62,6 @@ public class Interface {
                                 default:
                                     break;
                             }
-                            Fichero.llegirDOMXML(pos);
                         }catch(NumberFormatException e){
                             System.out.println(e.getMessage());
                         }catch(IllegalArgumentException e){

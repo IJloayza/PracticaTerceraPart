@@ -112,8 +112,6 @@ public class Fichero {
             try {
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document document = builder.parse(getArxiu(pos));
-                Element arrel = document.getDocumentElement();
-                System.out.printf ("element arrel : %s %n", arrel.getNodeName());
 
                 NodeList encarrecs = document.getElementsByTagName("encarrec");
         
@@ -139,7 +137,7 @@ public class Fichero {
                         
                         System.out.println("Artículos:");
 
-                        NodeList articles = document.getElementsByTagName("article");
+                        NodeList articles = element.getElementsByTagName("article");
 
                         for(int j = 0; j < articles.getLength(); j++){
                             Node article = articles.item(j);
@@ -187,7 +185,6 @@ public class Fichero {
             try {
                 saxParser.parse(getArxiu(pos), handler);
             } catch (SAXException e) {
-                // Ignorar excepción si es para detener el análisis
                 e.printStackTrace();
                 System.out.println(e.getMessage());
             }
