@@ -1,6 +1,6 @@
 # AppEncarrecs - Sistema de Gestión de Pedidos
 
-AppEncarrecs es una aplicación de consola en Java para gestionar pedidos en una tienda, permitiendo al usuario agregar, mostrar y editar encargos de productos. La aplicación permite al usuario interactuar mediante comandos sencillos, almacenar los pedidos en archivos de forma serializada o aleatoria, y gestionar información como fechas de entrega, artículos y contactos.
+AppEncarrecs es una aplicación de consola en Java para gestionar pedidos en una tienda, permitiendo al usuario agregar, mostrar y editar encargos de productos. La aplicación permite al usuario interactuar mediante comandos sencillos, almacenar los pedidos en archivos XML, y poderlos leer.
 
 ## Ejecución
 
@@ -14,11 +14,9 @@ En la aplicación existen 5 posibles acciones:
 Help:
     Despliega un listado de ayuda con todas las acciones realizadas por el usuario.
 Agregar:
-    Realiza el respectivo formulario para crear un archivo ya sea de tipo Serializado o Aleatorio.
+    Realiza el respectivo formulario para crear un archivo XML
 Show:
     Pregunta el tipo de encargo que deseas leer y muestra por pantalla el contenido de aquel encargo.
-Edit:
-    Pregunta el encargo y dentro de este el id que deseas cambiar ya sea por el teléfono o por la fecha acto seguido muestra el nuevo archivo con sus cambios.
 Finalizar:
     Una vez realizadas las acciones que querías se puede usar esta acción para salir de la aplicación.
 
@@ -26,32 +24,26 @@ Todas estas acciones tienen la constante c o Cancelar en todos los puntos del pr
 
 ## Actualizaciones
 
-En esta nueva actualización de nuestro anterior código ya no utilizamos datos mediante csv o binario sino nos centramos en la creación y lectura de archivos Serializados y Aleatorios.
+En esta nueva actualización de nuestro anterior código generaremos los archivos en formato XML usando DOM y también podremos hacer la lectura de estos utilizando DOM y SAX.
 
-He decidido también utilizar las carpetas Serializados y Aleatorios que crean respectivamente cada archivo en su carpeta ahorrando la búsqueda y mejor distribución de archivos, estos se crean en el lugar donde es ejecutada la aplicación y acceden a los archivos solo de los que se encuentran dentro de Aleatorios o Serializados, esto ofrece una libertad asi mismo de crear listados de elección y seguridad al momento de la lectura de los archivos, que es lo que utilizao para ofrecer algunas opciones en mi aplicación.
+Se han añadido los siguientes métodos en la clase Fichero:
 
-Junto con esto he pensado y creado los métodos de Fichero:
+###crearXML(List<Encarrec> listaEncarrecs):
 
-### ficSerialitzat(ArrayList<Encarrec>):
- Este método recoge la lista de encargos que ha realizado el cliente y procede a crear un archivo cuyo nombre es la fecha y hora del momento en el que se hizo el archivo, este implementa las clases ObjectOutputStream y FileOutputStram para escribir dentro de un archivo toda la lista de ENcarrecs usando writeObject como único método y única línea necesaria para la escritura del mismo.
+Este método usa el DocumentBuilderFactory para crear el documento de los encargos ordenados alfabéticamente en formato XML. Recorre la lista de encargos y va montando el XML, la raíz será el encargo que tendrá como atributo el id y contendrá como hijos los valores del encargo, nombre, teléfono, fecha y total. 
 
-### llegirSerialitzat(File ruta):
- Para leer un archivo serializado se pide anteriormente al usuario que elija entre un listado de la carpeta Serializados uno de los archivos, este archivo elegido es pasado a este método y realiza un casting sobre todo el objeto recuperado por ObjectInputStream y muestra un print legible por pantalla del ArrayList de los Encarrecs recuperados.
+Dentro de cada encargo añadiremos el nodo artículo y este contendrá su información básica: el nombre, la cantidad, el tipo de unidad y su precio.
 
-### ficAleatori(ArrayList<Encarrec>):
- Este método utiliza RandomAccesFile como el escritor de archivo el cual difiere del otro por su mayor complejidad al momento de realizar la escritura de un archivo al necesitar medidas fijas para los archivos debido a que RandomAccesFile también permite una gran libertad para editar los datos o saltarlos, por lo cual si todo tiene una medida el salto entre muchos datos es posible lo que lo vuelve en ese sentido superior a Serializados, por ello también en este archivo aleatorio realizo la escritura de todos los datos usando String.format que me permite rellenar los Strings que escribo junto espacios y no valor nulos \0 que dificultan la interpretación de los datos.
+###LlegirDOMXML(int pos):
 
-### llegirAleatori(File ruta):
- En este caso realizo saltos utilizando el método seek y así saltar de encargo en encargo, una vez leído el encargo altero la medida de pos que se refiere a la posición en la que quiero mover el puntero y continúo leyendo hasta que el archivo acabe por cada Encarrec leído lo añado aun ArrayList y al finalizar todo el archivo hago un print de todo el ArrayList.
+Este método permite leer un archivo XML utilizando el DocumentBuilderFactory con DOM. Se accede al archivo XML seleccionado por el usuario. Una vez se obtiene el documento XML, se accede al nodo raíz encarrecs. Luego, recorre cada nodo encarrec para leer la información del encargo. 
 
-### editarAleatori(File ruta, int idBuscado, String datoQueSeDeseaCambiar, String Cambio):
- Anteriormente se habrá pedido la ruta desde un listado que se muestra al usuario, se le mostrará por pantalla todo le documento y se le preguntará el id de encargo que desea cambiar y por cual valor desea cambiarlo, en este caso utilizo primero la lectura de id para ubicarme en un encargo en específico si el id no es igual al id que el usuario busca entonces realizao un salto de bytes al siguiente encargo y vuelvo a comparar el id, si no se encuentra será liberado un EndOfFileException el cual gestiono para avisar al uuario que ha introducido un id inexistente, si encuentra el id realizo los cambios sobre los bytes que se desea cambiar y imprimo el documenot una vez cambiado para mostrar los cambios generados.
+Dentro de cada encargo, también recorre los nodos article para obtener la información de cada artículo. 
 
-### leerString(RandomAccesFile archivoAleatorio, int longitud):
- Ya que en un RandomAccesFile lee los String mediante readChar y yo conozco desde el principio la longitud de los mismos, leo cada char y la introduzco dentro de un StringBuilder y retorno un String con los espacios eliminados.
+Finalmente, muestra toda esta información de manera estructurada en la consola.
 
 ### printEncarrecs(ArrayList<Encarrecs>):
- Este método esta destinado a formatear correctamente los Encarrecs añadidos y realizar un print en la pantalla legible por el usuario.
+Este método esta destinado a formatear correctamente los Encarrecs añadidos y realizar un print en la pantalla legible por el usuario.
 
 ## Clases
 
@@ -86,3 +78,4 @@ Las Utilitats son usadas como un reconocimiento de valores adecuados en distinta
 ### UtilitatsConfirmacio
 
 Este archivo está especialmente usado para verificar si la respeusta del usuario es positiva o negativa retorna un boolean y difiere de Utilitats debido a que no es una función de match por regex sino de reconocer la respuesta comparandolo con posibles equivalentes creados por mi mismo, tales como "si", "s", "yes", etc
+
